@@ -66,10 +66,10 @@ st.title('Stock Prediction App')
 
 st.sidebar.title('Options')
 
-ticker = st.sidebar.text_input("Enter Ticker")
+ticker = st.sidebar.text_input("Enter Ticker",value="AAPL")
 
 
-option = st.sidebar.selectbox("Select Dashboard", ('Live Market Price','Comapny Info','Financials','Quarterly Analysis','Chart','Stocktwits'))
+option = st.sidebar.selectbox("Select Dashboard", ('Live Market Price','Comapny Info','Financials','Quarterly Analysis','Prediction','Stocktwits'))
 
 
 
@@ -143,6 +143,42 @@ if option == 'Live Market Price':
     year_old_price = todays_data['Close'][0]
     current = si.get_live_price(ticker)
     st.text("52 week change: {:.2f} %".format(((current - year_old_price)*100)/year_old_price))
+    
+    
+    
+    START = "2015-01-01"
+    TODAY = datetime.datetime.today().strftime("%Y-%m-%d")
+    
+   
+    
+    
+    selected_stock = ticker
+    
+    
+    @st.cache
+    def load_data(ticker):
+        data = yf.download(ticker, START, TODAY)
+        data.reset_index(inplace=True)
+        return data
+    
+    	
+    
+    data = load_data(selected_stock)
+  
+    
+    st.subheader('Intraday Data')
+    st.write(data.tail())
+    
+    # Plot raw data
+    def plot_raw_data():
+    	fig = go.Figure()
+    	fig.add_trace(go.Scatter(x=data['Date'], y=data['Open'], name="stock_open"))
+    	fig.add_trace(go.Scatter(x=data['Date'], y=data['Close'], name="stock_close"))
+    	fig.layout.update(title_text='Opening & Closing Price Chart', xaxis_rangeslider_visible=True)
+    	st.plotly_chart(fig)
+    	
+    plot_raw_data()
+    
 
 
 
@@ -202,8 +238,8 @@ if option == 'Stocktwits':
 
 
 
-if option =='Chart':
-    st.subheader('Chart Dashboard')
+if option =='Prediction':
+    st.subheader('Prediction Dashboard')
     company= get_symbol(ticker)
     st.subheader(company)
     
@@ -227,22 +263,14 @@ if option =='Chart':
         return data
     
     	
-    data_load_state = st.text('Loading data...')
-    data = load_data(selected_stock)
-    data_load_state.text('Loading data... done!')
     
-    st.subheader('Raw data')
-    st.write(data.tail())
+    data = load_data(selected_stock)
+    
+    
+    
     
     # Plot raw data
-    def plot_raw_data():
-    	fig = go.Figure()
-    	fig.add_trace(go.Scatter(x=data['Date'], y=data['Open'], name="stock_open"))
-    	fig.add_trace(go.Scatter(x=data['Date'], y=data['Close'], name="stock_close"))
-    	fig.layout.update(title_text='Time Series data with Rangeslider', xaxis_rangeslider_visible=True)
-    	st.plotly_chart(fig)
-    	
-    plot_raw_data()
+   
     
     # Predict forecast with Prophet.
     df_train = data[['Date','Close']]
@@ -264,6 +292,20 @@ if option =='Chart':
     st.write("Forecast components")
     fig2 = m.plot_components(forecast)
     st.write(fig2)
+            
+
+
+    
+
+
+
+
+
+
+    
+
+
+
             
 
 
