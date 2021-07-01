@@ -1,11 +1,3 @@
-# -*- coding: utf-8 -*-
-"""
-Created on Thu May 27 01:22:44 2021
-
-@author: 91899
-"""
-
-
 import streamlit as st
 import pandas as pd
 import numpy as np
@@ -13,7 +5,7 @@ import requests
 import tweepy
 import psycopg2
 from tweepy import api
-import config
+#import config
 import psycopg2
 from fbprophet import Prophet
 from fbprophet.plot import plot_plotly
@@ -60,16 +52,19 @@ def get_symbol(symbol):
 #connection = psycopg2.connect(host=config.DB_HOST, database=config.DB_NAME, user=config.DB_USER, password=config.DB_PASS)
 #cursor = connection.cursor(cursor_factory=psycopg2.extras.DictCursor)
 
+ticker_lst = []
 
-
-st.title('Stock Prediction App')
+st.title('Equitopedia')
 
 st.sidebar.title('Options')
 
 ticker = st.sidebar.text_input("Enter Ticker",value="AAPL")
+ticker_lst.append(ticker)
+
+ticker = st.sidebar.selectbox("Watchlist", ticker_lst)
 
 
-option = st.sidebar.selectbox("Select Dashboard", ('Live Market Price','Comapny Info','Financials','Quarterly Analysis','Prediction','Stocktwits'))
+option = st.sidebar.selectbox("Select Dashboard", ('Live Market Price','Company Info','Financials','Quarterly Analysis','Prediction'))
 
 
 
@@ -187,17 +182,17 @@ if option == 'Live Market Price':
 
 
 
-if option == 'Comapny Info':
+if option == 'Company Info':
     company= get_symbol(ticker)
     st.subheader(company)
-    st.text("Average Revenue(in ₹):")
-    st.text(yf.Ticker(ticker).calendar.loc['Revenue Average'][0])
-    st.text("Dated-")
-    st.text(yf.Ticker(ticker).calendar.loc['Earnings Date'][0])
-    st.text("Social Score:")
-    st.text(str(yf.Ticker(ticker).sustainability.loc['socialScore']))
-    st.text("Environment Score:")
-    st.text(yf.Ticker(ticker).sustainability.loc['environmentScore'])
+#    st.text("Average Revenue(in ₹):")
+#    st.text(yf.Ticker(ticker).calendar.loc['Revenue Average'][0])
+#    st.text("Dated-")
+#    st.text(yf.Ticker(ticker).calendar.loc['Earnings Date'][0])
+#    st.text("Social Score:")
+#    st.text(str(yf.Ticker(ticker).sustainability.loc['socialScore']))
+#    st.text("Environment Score:")
+#    st.text(yf.Ticker(ticker).sustainability.loc['environmentScore'])
     st.subheader("Splits offered by the company:")
     st.text(pd.DataFrame(yf.Ticker(ticker).splits))
     st.subheader("Shareholders:")
@@ -221,23 +216,7 @@ if option == 'Stocktwits':
         st.write(message['user']['username'])
         st.write(message['created_at'])
         st.write(message['body'])
-           
         
-        
-
-
-    
-
-
-
-
-
-
-    
-
-
-
-
 if option =='Prediction':
     st.subheader('Prediction Dashboard')
     company= get_symbol(ticker)
@@ -292,30 +271,3 @@ if option =='Prediction':
     st.write("Forecast components")
     fig2 = m.plot_components(forecast)
     st.write(fig2)
-            
-
-
-    
-
-
-
-
-
-
-    
-
-
-
-            
-
-
-    
-
-
-
-
-
-
-    
-
-
